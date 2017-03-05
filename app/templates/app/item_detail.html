@@ -1,0 +1,64 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+    <div class="item">
+        {% if item.published_date %}
+            <div class="date">
+                {{ item.published_date }}
+            </div>
+        {% else %}
+            <a class="btn btn-default" href="{% url 'item_publish' pk=item.pk %}">Publish</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <a class="btn btn-default" href="{% url 'item_edit' pk=item.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+            <a class="btn btn-default" href="{% url 'item_remove' pk=item.pk %}"><span class="glyphicon glyphicon-trash"></span></a>
+        {% endif %}
+        <b><i><p> {{item.user}} updated the status<p></b></i>
+        <p>{{ item.post }}</p>
+        <img src="{{ item.image.url }}">
+        
+    </div>
+<hr>
+<a class="btn btn-default" href="{% url 'add_comment_to_post' pk=item.pk %}">Add comment</a>
+{% for comment in item.comments.all %}
+    {% if user.is_authenticated or comment.approved_comment %}
+    <div class="comment">
+        <div class="date">
+            {{ comment.created_date }}
+            {% if not comment.approved_comment %}
+                <a class="btn btn-default" href="{% url 'comment_remove' pk=comment.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
+                <a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}"><span class="glyphicon glyphicon-ok"></span></a>
+            {% endif %}
+        </div>
+        <p> {{comment.user}} <p>
+        <p>{{ comment.text|linebreaks }}</p>
+    </div>
+    {% endif %}
+{% empty %}
+    <p>No comments here yet :(</p>
+{% endfor %}
+<hr>
+<a class="btn btn-default" href="{% url 'add_likes_to_post' pk=item.pk %}">Like</a>
+{% for likes in item.likes.all %}
+{% if user.is_authenticated  %}
+    <div class="likes">
+        <div class="date">{{ likes.created_date }}</div>
+        <strong>{{ likes.user }}</strong>
+    </div>
+{% endif %}
+{% empty %}
+    <p>No likes here yet :(</p>
+{% endfor %}
+<hr>
+<a class="btn btn-default" href="{% url 'unlike_post' pk=item.pk %}">Unlike</a>
+{% for unlike in item.unlike.all %}
+{% if user.is_authenticated  %}
+    <div class="unlikes">
+        <div class="date">{{ unlike.created_date }}</div>
+        <strong>{{ unlike.user }}</strong>
+    </div>
+{% endif %}
+{% empty %}
+    <p>No likes here yet :(</p>
+{% endfor %}
+{% endblock %}

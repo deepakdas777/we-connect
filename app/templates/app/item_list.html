@@ -1,0 +1,25 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+    {% for item in items %}
+        <div class="item">
+            <div class="col-sm-4 col-lg-2">
+                <div class="thumbnail">
+                    <img src="{{ item.image.url }}">
+                </div>
+            </div>
+	    <p> {{ item.published_date }}</p>
+	    <b><i><p> {{item.user}} posted a new update</b></i></p>
+            <h2><a href="{% url 'item_detail' pk=item.pk %}">{{ item.post }}</a></h2>
+            <div class="date">
+               
+            </div>
+            
+            <p>{{ item.item_details|linebreaksbr }}</p>
+	    <a href="{% url 'item_detail' pk=item.pk %}">Comments: {{ item.approved_comments.count }}</a>
+	    <a href="{% url 'item_detail' pk=item.pk %}">Likes: {{ item.likes.count }}</a>        
+	    <a href="{% url 'item_detail' pk=item.pk %}">Unlikes: {{ item.unlike.count }}</a>	
+	</div>
+    {% endfor %}
+{% endblock %}
+
