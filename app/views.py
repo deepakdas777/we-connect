@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
 from django.views.generic import View
+from django.contrib import messages
 
 IMAGE_FILE_TYPES = ['png', 'jpg', 'jpeg']
 @login_required
