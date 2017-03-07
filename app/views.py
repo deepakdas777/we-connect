@@ -87,28 +87,32 @@ def item_new(request):
 @login_required
 def item_edit(request, pk):
     item = get_object_or_404(Item, pk=pk)
-    if request.method == "POST":
-        form = ItemForm(request.POST, request.FILES, instance=item)
-        if form.is_valid():
-            item = form.save(commit=False)
-            item.user = request.user
-            item.image = request.FILES['item_logo']
-            file_type = item.image.url.split('.')[-1]
-            file_type = file_type.lower()
-            if file_type not in IMAGE_FILE_TYPES:
-                context = {
-                    'item': item,
-                    'form': form,
-                    'error_message': 'Image file must be PNG, JPG, or JPEG',
-                }
-                
-                return render(request, 'app/item_edit.html', context)
-            item.published_date = timezone.now()
-            item.save()
-            return redirect('item_detail', pk=item.pk)
+    if item.user != request.user :
+        messages.success(request, "Post owned by another user, You are having read permission only")
+        return render(request,"app/denied.html",{})
     else:
-        form = ItemForm(instance=item)
-    return render(request, 'app/item_edit.html', {'form': form})
+        if request.method == "POST":
+            form = ItemForm(request.POST, request.FILES, instance=item)
+            if form.is_valid():
+                item = form.save(commit=False)
+                item.user = request.user
+                item.image = request.FILES['item_logo']
+                file_type = item.image.url.split('.')[-1]
+                file_type = file_type.lower()
+                if file_type not in IMAGE_FILE_TYPES:
+                    context = {
+                        'item': item,
+                        'form': form,
+                        'error_message': 'Image file must be PNG, JPG, or JPEG',
+                    }
+                
+                    return render(request, 'app/item_edit.html', context)
+                item.published_date = timezone.now()
+                item.save()
+                return redirect('item_detail', pk=item.pk)
+        else:
+            form = ItemForm(instance=item)
+        return render(request, 'app/item_edit.html', {'form': form})
 
 @login_required
 def item_draft_list(request):
@@ -125,8 +129,13 @@ def item_publish(request, pk):
 def item_remove(request, pk):
     
     item = get_object_or_404(Item, pk=pk)
-    item.delete()
-    return redirect('item_list')
+    if item.user == request.user :
+        item.delete()
+        return redirect('item_list')        
+
+    else:
+        messages.success(request, "Post owned by another user, You are having read permission only")
+        return render(request,"app/denied.html",{}) 
 @login_required
 def add_likes_to_post(request, pk):
     item = get_object_or_404(Item, pk=pk)
